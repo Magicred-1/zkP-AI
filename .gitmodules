@@ -1,0 +1,3 @@
+[submodule "contracts"]
+	path = contracts
+	url = https://github.com/Vadim91200/template-Plethora-Hyle.git
