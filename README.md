@@ -111,6 +111,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Acknowledgments
 
 - Thanks to the Eliza OS team for providing the AI agent.
+- Additionally thanking the Hylé team for devrel during the event.
 - Inspiration and support from the open-source community.
 
 ## Contact
