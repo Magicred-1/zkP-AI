@@ -9,7 +9,7 @@ Plethora is a cutting-edge tool designed for creating and deploying custom AI ag
 ## Features
 
 - **Zero-Knowledge Proofs**: Ensure data privacy and security by allowing AI agents to prove task completion without revealing sensitive information.
-- **Verifiable AI Agents**: Create custom AI agents whose tasks can be verified securely using ZKPs.
+- **Verifiable AI Agents**: Create custom AI agents whose tasks can be verified securely using ZKPs running in zkTEE using __Marlin Oyster__.
 - **Efficient Validation**: Streamline the validation process for AI tasks, ensuring efficiency and reliability.
 - **Data Privacy**: Maintain data privacy by keeping sensitive information confidential during the proof generation and verification process.
 - **Scalability**: Designed to handle increasing loads and data, ensuring performance and reliability.
