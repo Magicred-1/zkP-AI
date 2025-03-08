@@ -1,72 +1,49 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { User, Bell, Shield, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
+import { User, LogOut } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function SettingsScreen() {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, loading } = useAuth();
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Text style={styles.title}>Settings</Text>
-          <Text style={styles.subtitle}>Manage your preferences</Text>
+          <Text style={styles.subtitle}>Manage your account</Text>
         </View>
 
         <View style={styles.profileSection}>
-          <View style={styles.profileImage}>
-            <User size={32} color="#7C3AED" />
+          <View style={[styles.profileImage, loading && styles.loading]}>
+            {profile?.avatar_url ? (
+              <Image 
+                source={{ uri: profile.avatar_url }} 
+                style={styles.avatarImage}
+              />
+            ) : (
+              <User size={32} color="#7C3AED" />
+            )}
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{profile?.name || 'Anonymous User'}</Text>
-            <Text style={styles.profileEmail}>{profile?.email || 'No email set'}</Text>
+            <Text style={styles.profileName}>
+              {loading ? 'Loading...' : profile?.name || 'Anonymous User'}
+            </Text>
+            <Text style={styles.profileEmail}>
+              {loading ? 'Loading...' : profile?.email || 'No email set'}
+            </Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
-          {preferences.map((pref, index) => (
-            <View key={index} style={styles.settingItem}>
-              <Text style={styles.settingLabel}>{pref.label}</Text>
-              <Switch
-                value={pref.value}
-                onValueChange={() => {}}
-                trackColor={{ false: '#D1D5DB', true: '#7C3AED' }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-          ))}
+          <Text style={styles.sectionTitle}>Account</Text>
+          <View style={styles.settingItem}>
+            <Text style={styles.settingLabel}>Dark Mode</Text>
+            <Text style={styles.settingValue}>Coming soon</Text>
+          </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notifications</Text>
-          {notifications.map((notif, index) => (
-            <View key={index} style={styles.settingItem}>
-              <View style={styles.settingContent}>
-                <Bell size={20} color="#6B7280" />
-                <Text style={styles.settingLabel}>{notif.label}</Text>
-              </View>
-              <Switch
-                value={notif.value}
-                onValueChange={() => {}}
-                trackColor={{ false: '#D1D5DB', true: '#7C3AED' }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>More</Text>
-          <Pressable style={styles.menuItem}>
-            <Shield size={20} color="#6B7280" />
-            <Text style={styles.menuText}>Privacy & Security</Text>
-          </Pressable>
-          <Pressable style={styles.menuItem}>
-            <HelpCircle size={20} color="#6B7280" />
-            <Text style={styles.menuText}>Help & Support</Text>
-          </Pressable>
           <Pressable 
             style={[styles.menuItem, styles.logoutButton]}
             onPress={signOut}
@@ -79,18 +56,6 @@ export default function SettingsScreen() {
     </SafeAreaView>
   );
 }
-
-const preferences = [
-  { label: 'Dark Mode', value: false },
-  { label: 'Auto-update Agents', value: true },
-  { label: 'Analytics Sharing', value: true },
-];
-
-const notifications = [
-  { label: 'Agent Status Updates', value: true },
-  { label: 'Performance Reports', value: true },
-  { label: 'New Features', value: false },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -137,6 +102,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
+  avatarImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+  },
+  loading: {
+    opacity: 0.5,
+  },
   profileInfo: {
     flex: 1,
   },
@@ -171,15 +144,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 12,
   },
-  settingContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   settingLabel: {
     fontFamily: 'Lexend',
     fontSize: 16,
     color: '#111827',
-    marginLeft: 12,
+  },
+  settingValue: {
+    fontFamily: 'Lexend',
+    fontSize: 16,
+    color: '#6B7280',
   },
   menuItem: {
     flexDirection: 'row',
@@ -189,12 +162,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 12,
-  },
-  menuText: {
-    fontFamily: 'Lexend',
-    fontSize: 16,
-    color: '#111827',
-    marginLeft: 12,
   },
   logoutButton: {
     marginTop: 8,

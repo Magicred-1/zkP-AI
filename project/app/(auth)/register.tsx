@@ -13,6 +13,11 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    if (!name || !email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
     try {
       setError('');
       setLoading(true);
@@ -22,7 +27,7 @@ export default function RegisterScreen() {
         password,
         options: {
           data: {
-            name,
+            name: name,
           },
         },
       });
@@ -30,6 +35,18 @@ export default function RegisterScreen() {
       if (signUpError) throw signUpError;
 
       if (data.user) {
+        // Create profile record
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            name: name,
+            email: email,
+            updated_at: new Date().toISOString(),
+          });
+
+        if (profileError) throw profileError;
+        
         router.replace('/(tabs)');
       }
     } catch (err) {
@@ -43,6 +60,10 @@ export default function RegisterScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
+          <Image 
+            source={{ uri: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&auto=format&fit=crop&q=80' }}
+            style={styles.logo}
+          />
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join the AI revolution today</Text>
         </View>
@@ -101,11 +122,6 @@ export default function RegisterScreen() {
             </Pressable>
           </View>
         </View>
-
-        <Image
-          source={{ uri: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=80' }}
-          style={styles.backgroundImage}
-        />
       </View>
     </SafeAreaView>
   );
@@ -121,18 +137,27 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   header: {
+    alignItems: 'center',
     marginBottom: 32,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    marginBottom: 24,
   },
   title: {
     fontFamily: 'LexendBold',
     fontSize: 32,
     color: '#111827',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontFamily: 'Lexend',
     fontSize: 16,
     color: '#6B7280',
+    textAlign: 'center',
   },
   form: {
     gap: 16,
@@ -195,13 +220,5 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     marginBottom: 16,
     textAlign: 'center',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    opacity: 0.1,
   },
 });

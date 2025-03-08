@@ -2,50 +2,45 @@ import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, Image } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mail, Lock, ArrowRight, Apple, Twitter } from 'lucide-react-native';
+import { Mail, Lock, ArrowRight } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleMagicLink = async () => {
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+
     try {
       setError('');
       setLoading(true);
 
-      const { error: signInError } = await supabase.auth.signInWithOtp({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        options: {
-          emailRedirectTo: window.location.origin,
-        },
+        password,
       });
 
       if (signInError) throw signInError;
 
-      alert('Check your email for the login link!');
+      if (data.user) {
+        router.replace('/(tabs)');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send magic link');
+      setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'apple' | 'twitter') => {
-    try {
-      setError('');
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: window.location.origin,
-        },
-      });
-
-      if (error) throw error;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in');
-    }
+  const handleSocialLogin = (provider: 'google' | 'apple' | 'twitter') => {
+    // Placeholder for social login implementation
+    console.log(`${provider} login clicked`);
   };
 
   return (
@@ -76,11 +71,23 @@ export default function LoginScreen() {
             />
           </View>
 
+          <View style={styles.inputContainer}>
+            <Lock size={20} color="#6B7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
+
           <Pressable 
             style={[styles.button, loading && styles.buttonDisabled]} 
-            onPress={handleMagicLink}
+            onPress={handleLogin}
             disabled={loading}>
-            <Text style={styles.buttonText}>Continue with Email</Text>
+            <Text style={styles.buttonText}>Sign In</Text>
             <ArrowRight size={20} color="#FFFFFF" />
           </Pressable>
 
@@ -91,36 +98,41 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.socialButtons}>
-            <Pressable 
+            <Pressable
               style={styles.socialButton}
               onPress={() => handleSocialLogin('google')}>
-              <Image 
-                source={{ uri: 'https://www.google.com/favicon.ico' }}
+              <Image
+                source={{ uri: 'https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png' }}
                 style={styles.socialIcon}
               />
-              <Text style={styles.socialButtonText}>Google</Text>
             </Pressable>
 
-            <Pressable 
+            <Pressable
               style={styles.socialButton}
               onPress={() => handleSocialLogin('apple')}>
-              <Apple size={24} color="#000000" />
-              <Text style={styles.socialButtonText}>Apple</Text>
+              <Image
+                source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg' }}
+                style={styles.socialIcon}
+              />
             </Pressable>
 
-            <Pressable 
+            <Pressable
               style={styles.socialButton}
               onPress={() => handleSocialLogin('twitter')}>
-              <Twitter size={24} color="#1DA1F2" />
-              <Text style={styles.socialButtonText}>Twitter</Text>
+              <Image
+                source={{ uri: 'https://about.twitter.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png' }}
+                style={styles.socialIcon}
+              />
+            </Pressable>
+          </View>
+
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Don't have an account? </Text>
+            <Pressable onPress={() => router.push('/(auth)/register')}>
+              <Text style={styles.signupLink}>Sign Up</Text>
             </Pressable>
           </View>
         </View>
-
-        <Image
-          source={{ uri: 'https://images.unsplash.com/photo-1676299081847-5c7fe2a16d3f?w=800&auto=format&fit=crop&q=80' }}
-          style={styles.backgroundImage}
-        />
       </View>
     </SafeAreaView>
   );
@@ -216,29 +228,38 @@ const styles = StyleSheet.create({
   },
   socialButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
+    justifyContent: 'center',
+    gap: 16,
   },
   socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F9FAFB',
+    width: 48,
     height: 48,
     borderRadius: 12,
+    backgroundColor: '#F9FAFB',
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   socialIcon: {
     width: 24,
     height: 24,
+    resizeMode: 'contain',
   },
-  socialButtonText: {
-    fontFamily: 'LexendMedium',
+  signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  signupText: {
+    fontFamily: 'Lexend',
     fontSize: 14,
-    color: '#111827',
+    color: '#6B7280',
+  },
+  signupLink: {
+    fontFamily: 'LexendSemiBold',
+    fontSize: 14,
+    color: '#7C3AED',
   },
   error: {
     fontFamily: 'Lexend',
@@ -246,13 +267,5 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     marginBottom: 16,
     textAlign: 'center',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-    opacity: 0.1,
   },
 });

@@ -1,10 +1,10 @@
 import { Tabs } from 'expo-router';
-import { Brain, Blocks, Settings, Sparkles } from 'lucide-react-native';
+import { Brain, Blocks, Settings, Sparkles, Plus } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
-import { useAuth } from '@/hooks/useAuth';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 
 export default function TabLayout() {
-  const { loading } = useAuth();
+  const { loading } = useProtectedRoute();
 
   if (loading) {
     return null;
@@ -34,6 +34,15 @@ export default function TabLayout() {
           title: 'Agents',
           tabBarIcon: ({ color, size }) => (
             <Brain size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: 'Create',
+          tabBarIcon: ({ color, size }) => (
+            <Plus size={size} color={color} />
           ),
         }}
       />

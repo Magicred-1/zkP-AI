@@ -1,8 +1,168 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, ChevronRight } from 'lucide-react-native';
+import { Plus, ChevronRight, Bot, MessageSquare, Code, Database } from 'lucide-react-native';
+import { router } from 'expo-router';
+import Animated, { 
+  useAnimatedStyle, 
+  withSpring,
+  withSequence,
+  useSharedValue,
+} from 'react-native-reanimated';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export type Template = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  icon: React.ReactNode;
+  config: {
+    name: string;
+    description: string;
+    type: string;
+    bio: string[];
+    lore: string[];
+    knowledge: string[];
+    topics: string[];
+  };
+};
+
+const templates: Template[] = [
+  {
+    id: 'customer-service',
+    title: 'Customer Service',
+    description: 'Build an AI agent that handles customer inquiries',
+    image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&auto=format&fit=crop&q=80',
+    icon: <MessageSquare size={24} color="#7C3AED" />,
+    config: {
+      name: 'Customer Support Agent',
+      description: 'An AI assistant specialized in customer service and support',
+      type: 'chat',
+      bio: [
+        'Professional and empathetic customer service representative',
+        'Experienced in handling customer inquiries and complaints',
+        'Trained to provide clear and helpful solutions'
+      ],
+      lore: [
+        'Deep understanding of customer service best practices',
+        'Knowledge of common customer pain points and solutions'
+      ],
+      knowledge: [
+        'Customer service protocols and procedures',
+        'Conflict resolution techniques',
+        'Product knowledge and support guidelines'
+      ],
+      topics: [
+        'Customer Support',
+        'Technical Assistance',
+        'Product Information',
+        'Order Management'
+      ]
+    }
+  },
+  {
+    id: 'code-assistant',
+    title: 'Code Assistant',
+    description: 'Create an AI that helps with programming tasks',
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&auto=format&fit=crop&q=80',
+    icon: <Code size={24} color="#7C3AED" />,
+    config: {
+      name: 'Code Helper',
+      description: 'An AI assistant specialized in programming and development',
+      type: 'code',
+      bio: [
+        'Expert programmer with broad language knowledge',
+        'Specializes in code review and optimization',
+        'Experienced in debugging and problem-solving'
+      ],
+      lore: [
+        'Deep understanding of software development principles',
+        'Knowledge of best practices across different programming paradigms'
+      ],
+      knowledge: [
+        'Multiple programming languages and frameworks',
+        'Software architecture patterns',
+        'Testing and debugging methodologies'
+      ],
+      topics: [
+        'Programming',
+        'Code Review',
+        'Debugging',
+        'Software Architecture'
+      ]
+    }
+  },
+  {
+    id: 'data-analyst',
+    title: 'Data Analyst',
+    description: 'Design an AI that processes and analyzes data',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&auto=format&fit=crop&q=80',
+    icon: <Database size={24} color="#7C3AED" />,
+    config: {
+      name: 'Data Analysis Assistant',
+      description: 'An AI assistant specialized in data analysis and insights',
+      type: 'data',
+      bio: [
+        'Expert in data analysis and visualization',
+        'Skilled in statistical analysis and interpretation',
+        'Experienced in generating actionable insights'
+      ],
+      lore: [
+        'Deep understanding of data analysis methodologies',
+        'Knowledge of statistical principles and techniques'
+      ],
+      knowledge: [
+        'Statistical analysis methods',
+        'Data visualization techniques',
+        'Machine learning principles'
+      ],
+      topics: [
+        'Data Analysis',
+        'Statistics',
+        'Data Visualization',
+        'Business Intelligence'
+      ]
+    }
+  }
+];
+
+const recentAgents = [
+  { name: 'Support Bot', type: 'Customer Service' },
+  { name: 'Data Analyzer', type: 'Analytics' },
+  { name: 'Content Assistant', type: 'Content Generation' },
+];
 
 export default function BuildScreen() {
+  const createButtonScale = useSharedValue(1);
+  const templateAnimations = templates.map(() => ({
+    scale: useSharedValue(1),
+  }));
+
+  const handleCreateFromTemplate = (template: Template) => {
+    const index = templates.findIndex(t => t.id === template.id);
+    templateAnimations[index].scale.value = withSequence(
+      withSpring(0.95),
+      withSpring(1, undefined, () => {
+        router.push({
+          pathname: '/(tabs)/create',
+          params: {
+            template: JSON.stringify(template.config)
+          }
+        });
+      })
+    );
+  };
+
+  const handleCreateNew = () => {
+    createButtonScale.value = withSequence(
+      withSpring(0.95),
+      withSpring(1, undefined, () => {
+        router.push('/(tabs)/create');
+      })
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -11,22 +171,40 @@ export default function BuildScreen() {
           <Text style={styles.subtitle}>Create powerful AI agents without code</Text>
         </View>
 
-        <Pressable style={styles.createButton}>
+        <AnimatedPressable 
+          style={[
+            styles.createButton,
+            useAnimatedStyle(() => ({
+              transform: [{ scale: createButtonScale.value }]
+            }))
+          ]}
+          onPress={handleCreateNew}>
           <Plus size={24} color="#FFFFFF" />
           <Text style={styles.createButtonText}>Create New Agent</Text>
-        </Pressable>
+        </AnimatedPressable>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Templates</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.templatesScroll}>
             {templates.map((template, index) => (
-              <Pressable key={index} style={styles.templateCard}>
+              <AnimatedPressable 
+                key={template.id} 
+                style={[
+                  styles.templateCard,
+                  useAnimatedStyle(() => ({
+                    transform: [{ scale: templateAnimations[index].scale.value }]
+                  }))
+                ]}
+                onPress={() => handleCreateFromTemplate(template)}>
                 <Image source={{ uri: template.image }} style={styles.templateImage} />
                 <View style={styles.templateContent}>
-                  <Text style={styles.templateTitle}>{template.title}</Text>
+                  <View style={styles.templateHeader}>
+                    {template.icon}
+                    <Text style={styles.templateTitle}>{template.title}</Text>
+                  </View>
                   <Text style={styles.templateDescription}>{template.description}</Text>
                 </View>
-              </Pressable>
+              </AnimatedPressable>
             ))}
           </ScrollView>
         </View>
@@ -34,10 +212,19 @@ export default function BuildScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Agents</Text>
           {recentAgents.map((agent, index) => (
-            <Pressable key={index} style={styles.agentCard}>
+            <Pressable 
+              key={index} 
+              style={styles.agentCard}
+              onPress={() => router.push('/(tabs)/agents')}>
               <View style={styles.agentInfo}>
-                <Text style={styles.agentName}>{agent.name}</Text>
-                <Text style={styles.agentType}>{agent.type}</Text>
+                <Image 
+                  source={{ uri: agent.avatar_url || 'https://images.unsplash.com/photo-1675426513962-63c6022a8626?w=400&auto=format&fit=crop&q=80' }}
+                  style={styles.agentAvatar}
+                />
+                <View>
+                  <Text style={styles.agentName}>{agent.name}</Text>
+                  <Text style={styles.agentType}>{agent.type}</Text>
+                </View>
               </View>
               <ChevronRight size={20} color="#6B7280" />
             </Pressable>
@@ -47,30 +234,6 @@ export default function BuildScreen() {
     </SafeAreaView>
   );
 }
-
-const templates = [
-  {
-    title: 'Customer Service',
-    description: 'Build an AI agent that handles customer inquiries',
-    image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&auto=format&fit=crop&q=80',
-  },
-  {
-    title: 'Data Analysis',
-    description: 'Create an agent that processes and analyzes data',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&auto=format&fit=crop&q=80',
-  },
-  {
-    title: 'Content Writer',
-    description: 'Design an AI that generates engaging content',
-    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&auto=format&fit=crop&q=80',
-  },
-];
-
-const recentAgents = [
-  { name: 'Support Bot', type: 'Customer Service' },
-  { name: 'Data Analyzer', type: 'Analytics' },
-  { name: 'Content Assistant', type: 'Content Generation' },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -84,13 +247,13 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontFamily: 'SpaceGrotesk',
+    fontFamily: 'LexendBold',
     fontSize: 32,
     color: '#111827',
     marginBottom: 8,
   },
   subtitle: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 16,
     color: '#6B7280',
   },
@@ -106,7 +269,7 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: '#FFFFFF',
-    fontFamily: 'InterSemiBold',
+    fontFamily: 'LexendSemiBold',
     fontSize: 16,
     marginLeft: 12,
   },
@@ -114,7 +277,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionTitle: {
-    fontFamily: 'InterBold',
+    fontFamily: 'LexendBold',
     fontSize: 20,
     color: '#111827',
     marginLeft: 24,
@@ -142,14 +305,19 @@ const styles = StyleSheet.create({
   templateContent: {
     padding: 16,
   },
-  templateTitle: {
-    fontFamily: 'InterSemiBold',
-    fontSize: 18,
-    color: '#111827',
+  templateHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginBottom: 8,
   },
+  templateTitle: {
+    fontFamily: 'LexendSemiBold',
+    fontSize: 18,
+    color: '#111827',
+  },
   templateDescription: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 14,
     color: '#6B7280',
   },
@@ -170,16 +338,25 @@ const styles = StyleSheet.create({
   },
   agentInfo: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   agentName: {
-    fontFamily: 'InterSemiBold',
+    fontFamily: 'LexendSemiBold',
     fontSize: 16,
     color: '#111827',
     marginBottom: 4,
   },
   agentType: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 14,
     color: '#6B7280',
+  },
+  agentAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F3F4F6',
   },
 });

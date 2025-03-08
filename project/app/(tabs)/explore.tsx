@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontFamily: 'SpaceGrotesk',
+    fontFamily: 'LexendBold',
     fontSize: 32,
     color: '#111827',
     marginBottom: 8,
   },
   subtitle: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 16,
     color: '#6B7280',
   },
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   searchPlaceholder: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 16,
     color: '#6B7280',
     marginLeft: 12,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionTitle: {
-    fontFamily: 'InterBold',
+    fontFamily: 'LexendBold',
     fontSize: 20,
     color: '#111827',
     marginLeft: 24,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   featuredTitle: {
-    fontFamily: 'InterSemiBold',
+    fontFamily: 'LexendSemiBold',
     fontSize: 18,
     color: '#111827',
     flex: 1,
@@ -178,13 +178,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ratingText: {
-    fontFamily: 'InterSemiBold',
+    fontFamily: 'LexendSemiBold',
     fontSize: 14,
     color: '#111827',
     marginLeft: 4,
   },
   featuredDescription: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 14,
     color: '#6B7280',
     marginBottom: 12,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   statsText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 14,
     color: '#6B7280',
   },
@@ -217,13 +217,13 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   categoryTitle: {
-    fontFamily: 'InterSemiBold',
+    fontFamily: 'LexendSemiBold',
     fontSize: 16,
     color: '#111827',
     marginBottom: 4,
   },
   categoryCount: {
-    fontFamily: 'Inter',
+    fontFamily: 'Lexend',
     fontSize: 14,
     color: '#6B7280',
   },
