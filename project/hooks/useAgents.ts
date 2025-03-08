@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { createAgent as createAgentApi } from '@/app/api/agents/create';
 import type { Database } from '@/types/database.types';
 
 export type Agent = Database['public']['Tables']['agents']['Row'];
@@ -28,6 +29,7 @@ export function useAgents() {
       if (fetchError) throw fetchError;
       setAgents(data || []);
     } catch (err) {
+      console.error('Error fetching agents:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch agents');
     } finally {
       setLoading(false);
@@ -37,16 +39,16 @@ export function useAgents() {
   const createAgent = async (agent: AgentInsert) => {
     try {
       setError(null);
-      const { data, error: insertError } = await supabase
-        .from('agents')
-        .insert(agent)
-        .select()
-        .single();
+      const result = await createAgentApi(agent);
 
-      if (insertError) throw insertError;
-      setAgents(prev => [data, ...prev]);
-      return data;
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      setAgents(prev => [result.data, ...prev]);
+      return result.data;
     } catch (err) {
+      console.error('Error creating agent:', err);
       setError(err instanceof Error ? err.message : 'Failed to create agent');
       throw err;
     }
@@ -57,7 +59,10 @@ export function useAgents() {
       setError(null);
       const { data, error: updateError } = await supabase
         .from('agents')
-        .update(updates)
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', id)
         .select()
         .single();
@@ -66,6 +71,7 @@ export function useAgents() {
       setAgents(prev => prev.map(agent => agent.id === id ? data : agent));
       return data;
     } catch (err) {
+      console.error('Error updating agent:', err);
       setError(err instanceof Error ? err.message : 'Failed to update agent');
       throw err;
     }
@@ -82,6 +88,7 @@ export function useAgents() {
       if (deleteError) throw deleteError;
       setAgents(prev => prev.filter(agent => agent.id !== id));
     } catch (err) {
+      console.error('Error deleting agent:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete agent');
       throw err;
     }

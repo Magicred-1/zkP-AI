@@ -13,6 +13,7 @@ export interface Database {
         Row: {
           id: string
           name: string | null
+          email: string | null
           avatar_url: string | null
           created_at: string
           updated_at: string
@@ -20,6 +21,7 @@ export interface Database {
         Insert: {
           id: string
           name?: string | null
+          email?: string | null
           avatar_url?: string | null
           created_at?: string
           updated_at?: string
@@ -27,6 +29,7 @@ export interface Database {
         Update: {
           id?: string
           name?: string | null
+          email?: string | null
           avatar_url?: string | null
           created_at?: string
           updated_at?: string
@@ -38,6 +41,7 @@ export interface Database {
           name: string
           description: string | null
           type: string
+          avatar_url: string | null
           config: Json
           is_active: boolean
           created_by: string
@@ -49,6 +53,7 @@ export interface Database {
           name: string
           description?: string | null
           type: string
+          avatar_url?: string | null
           config?: Json
           is_active?: boolean
           created_by: string
@@ -60,6 +65,7 @@ export interface Database {
           name?: string
           description?: string | null
           type?: string
+          avatar_url?: string | null
           config?: Json
           is_active?: boolean
           created_by?: string

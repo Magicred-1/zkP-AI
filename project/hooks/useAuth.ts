@@ -12,7 +12,6 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -29,11 +28,12 @@ export function useAuth() {
 
     initAuth();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      
+      if (currentUser) {
+        await fetchProfile(currentUser.id);
       } else {
         setProfile(null);
         router.replace('/(auth)/login');
@@ -53,16 +53,37 @@ export function useAuth() {
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile doesn't exist, create it
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user?.email,
+              updated_at: new Date().toISOString(),
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          setProfile(newProfile);
+        } else {
+          throw error;
+        }
+      } else {
+        setProfile(data);
+      }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching/creating profile:', error);
     }
   };
 
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
       router.replace('/(auth)/login');
     } catch (error) {
       console.error('Error signing out:', error);
