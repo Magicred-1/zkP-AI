@@ -21,6 +21,15 @@ export async function createAgent(agent: AgentInsert) {
       throw new Error('Invalid avatar URL');
     }
 
+    // Ensure config has required fields
+    const config = agent.config as any;
+    if (!config?.bio?.length) {
+      throw new Error('At least one bio entry is required');
+    }
+    if (!config?.lore?.length) {
+      throw new Error('At least one lore entry is required');
+    }
+
     // Insert the agent
     const { data, error } = await supabase
       .from('agents')
@@ -29,7 +38,21 @@ export async function createAgent(agent: AgentInsert) {
         description: agent.description,
         type: agent.type,
         avatar_url: agent.avatar_url,
-        config: agent.config || {},
+        config: {
+          bio: config.bio,
+          lore: config.lore,
+          style: config.style || {
+            all: ["keep responses concise and sharp"],
+            chat: ["respond with quick wit"],
+            post: ["craft concise thought bombs"]
+          },
+          topics: config.topics || [],
+          plugins: config.plugins || [],
+          adjectives: config.adjectives || ["brilliant", "enigmatic", "witty"],
+          postExamples: config.postExamples || [],
+          modelProvider: config.modelProvider || "groq",
+          messageExamples: config.messageExamples || []
+        },
         is_active: true,
         created_by: agent.created_by,
         created_at: new Date().toISOString(),
