@@ -1,10 +1,35 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Play, Pause, ChartBar as BarChart2, MessageSquare } from 'lucide-react-native';
+import { Play, Pause, BarChart as BarChart2, MessageSquare, Plus } from 'lucide-react-native';
 import { useAgents } from '@/hooks/useAgents';
+import { router } from 'expo-router';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AgentsScreen() {
-  const { agents, loading, error } = useAgents();
+  const { agents, loading, error, updateAgent } = useAgents();
+  const { user } = useAuth();
+
+  const handleToggleActive = async (agentId: string, isActive: boolean) => {
+    try {
+      await updateAgent(agentId, { is_active: !isActive });
+    } catch (err) {
+      console.error('Error toggling agent status:', err);
+    }
+  };
+
+  const handleCreateAgent = () => {
+    router.push('/(tabs)/create');
+  };
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.emptyStateContainer}>
+          <Text style={styles.emptyStateText}>Please sign in to view your agents</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,13 +59,26 @@ export default function AgentsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Active Agents</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Active Agents</Text>
+            <Pressable style={styles.createButton} onPress={handleCreateAgent}>
+              <Plus size={20} color="#7C3AED" />
+              <Text style={styles.createButtonText}>Create Agent</Text>
+            </Pressable>
+          </View>
+
           {loading ? (
             <Text style={styles.loadingText}>Loading agents...</Text>
           ) : error ? (
             <Text style={styles.errorText}>{error}</Text>
           ) : agents.length === 0 ? (
-            <Text style={styles.emptyText}>No agents found. Create one to get started!</Text>
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>No agents found. Create one to get started!</Text>
+              <Pressable style={styles.emptyStateButton} onPress={handleCreateAgent}>
+                <Plus size={20} color="#FFFFFF" />
+                <Text style={styles.emptyStateButtonText}>Create Your First Agent</Text>
+              </Pressable>
+            </View>
           ) : (
             agents.map((agent) => (
               <View key={agent.id} style={styles.agentCard}>
@@ -62,7 +100,8 @@ export default function AgentsScreen() {
                     style={[
                       styles.statusButton,
                       { backgroundColor: agent.is_active ? '#DCF7E3' : '#FEE2E2' },
-                    ]}>
+                    ]}
+                    onPress={() => handleToggleActive(agent.id, agent.is_active)}>
                     {agent.is_active ? (
                       <Play size={16} color="#059669" />
                     ) : (
@@ -153,12 +192,30 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 32,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontFamily: 'LexendBold',
     fontSize: 20,
     color: '#111827',
-    marginLeft: 24,
-    marginBottom: 16,
+  },
+  createButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#F3E8FF',
+  },
+  createButtonText: {
+    fontFamily: 'LexendSemiBold',
+    fontSize: 14,
+    color: '#7C3AED',
   },
   agentCard: {
     backgroundColor: '#FFFFFF',
@@ -239,11 +296,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 24,
   },
-  emptyText: {
-    fontFamily: 'Lexend',
+  emptyStateContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    gap: 16,
+  },
+  emptyStateText: {
+    fontFamily: 'LexendMedium',
     fontSize: 16,
     color: '#6B7280',
     textAlign: 'center',
-    marginTop: 24,
+  },
+  emptyStateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#7C3AED',
+    padding: 12,
+    borderRadius: 8,
+  },
+  emptyStateButtonText: {
+    fontFamily: 'LexendSemiBold',
+    fontSize: 14,
+    color: '#FFFFFF',
   },
 });

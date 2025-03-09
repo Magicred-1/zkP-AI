@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Brain, Blocks, Settings, Sparkles, Plus } from 'lucide-react-native';
+import { Brain, Blocks, Settings, Sparkles } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 
@@ -37,7 +37,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="create"
         options={{
           title: 'Create',
@@ -45,7 +45,7 @@ export default function TabLayout() {
             <Plus size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="explore"
         options={{

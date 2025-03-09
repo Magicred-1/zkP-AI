@@ -51,7 +51,7 @@ export default function LoginScreen() {
             source={{ uri: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&auto=format&fit=crop&q=80' }}
             style={styles.logo}
           />
-          <Text style={styles.title}>Welcome to zkP-AI</Text>
+          <Text style={styles.title}>Welcome to Plethora</Text>
           <Text style={styles.subtitle}>Sign in to continue building secure AI agents</Text>
         </View>
 

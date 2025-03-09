@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { createAgent as createAgentApi } from '@/app/api/agents/create';
 import type { Database } from '@/types/database.types';
+import { useAuth } from './useAuth';
 
 export type Agent = Database['public']['Tables']['agents']['Row'];
 export type AgentInsert = Database['public']['Tables']['agents']['Insert'];
@@ -11,12 +12,17 @@ export function useAgents() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchAgents();
-  }, []);
+    if (user) {
+      fetchAgents();
+    }
+  }, [user]);
 
   const fetchAgents = async () => {
+    if (!user) return;
+
     try {
       setLoading(true);
       setError(null);
@@ -24,6 +30,7 @@ export function useAgents() {
       const { data, error: fetchError } = await supabase
         .from('agents')
         .select('*')
+        .eq('created_by', user.id)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
@@ -55,6 +62,8 @@ export function useAgents() {
   };
 
   const updateAgent = async (id: string, updates: AgentUpdate) => {
+    if (!user) return;
+
     try {
       setError(null);
       const { data, error: updateError } = await supabase
@@ -64,6 +73,7 @@ export function useAgents() {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
+        .eq('created_by', user.id) // Ensure user can only update their own agents
         .select()
         .single();
 
@@ -78,12 +88,15 @@ export function useAgents() {
   };
 
   const deleteAgent = async (id: string) => {
+    if (!user) return;
+
     try {
       setError(null);
       const { error: deleteError } = await supabase
         .from('agents')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('created_by', user.id); // Ensure user can only delete their own agents
 
       if (deleteError) throw deleteError;
       setAgents(prev => prev.filter(agent => agent.id !== id));

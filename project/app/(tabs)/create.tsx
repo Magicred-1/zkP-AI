@@ -50,6 +50,36 @@ const agentTypes: AgentType[] = [
   },
 ];
 
+const defaultConfig = {
+  style: {
+    all: ["keep responses concise and sharp"],
+    chat: ["respond with quick wit"],
+    post: ["craft concise thought bombs"]
+  },
+  adjectives: ["brilliant", "enigmatic", "witty"],
+  postExamples: [
+    "Just spent 3 hours debugging only to realize I forgot a semicolon.",
+    "Your startup isnt disrupting the industry, youre just burning VC money."
+  ],
+  modelProvider: "groq",
+  messageExamples: [
+    [
+      {
+        user: "{{user1}}",
+        content: {
+          text: "What's your favorite way to spend a Sunday?"
+        }
+      },
+      {
+        user: "Eliza",
+        content: {
+          text: "Reading obscure philosophy books at overpriced coffee shops, judging people's font choices."
+        }
+      }
+    ]
+  ]
+};
+
 type FormData = {
   name: string;
   description: string;
@@ -195,6 +225,14 @@ export default function CreateAgentScreen() {
         throw new Error('Agent name is required');
       }
 
+      if (cleanedFormData.bio.length === 0) {
+        throw new Error('At least one bio entry is required');
+      }
+
+      if (cleanedFormData.lore.length === 0) {
+        throw new Error('At least one lore entry is required');
+      }
+
       const agent = await createAgent({
         name: cleanedFormData.name,
         description: cleanedFormData.description,
@@ -202,19 +240,17 @@ export default function CreateAgentScreen() {
         avatar_url: cleanedFormData.avatar_url,
         created_by: user.id,
         config: {
+          ...defaultConfig,
           bio: cleanedFormData.bio,
           lore: cleanedFormData.lore,
-          knowledge: cleanedFormData.knowledge,
           topics: cleanedFormData.topics,
           plugins: cleanedFormData.plugins,
-          modelProvider: 'groq',
-          settings: {
-            voice: {
-              model: 'en_US-male-medium'
-            }
-          }
         },
       });
+
+      if (!agent) {
+        throw new Error('Failed to create agent');
+      }
 
       router.push('/(tabs)/agents');
     } catch (err) {
@@ -280,8 +316,6 @@ export default function CreateAgentScreen() {
           <Pressable 
             style={styles.avatarContainer} 
             onPress={handleAvatarPress}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
             disabled={uploadingAvatar}>
             <Image
               source={{ uri: previewUrl || formData.avatar_url }}

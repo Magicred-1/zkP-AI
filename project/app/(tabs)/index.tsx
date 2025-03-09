@@ -218,7 +218,7 @@ export default function BuildScreen() {
               onPress={() => router.push('/(tabs)/agents')}>
               <View style={styles.agentInfo}>
                 <Image 
-                  source={{ uri: agent.avatar_url || 'https://images.unsplash.com/photo-1675426513962-63c6022a8626?w=400&auto=format&fit=crop&q=80' }}
+                  source={{ uri: 'https://images.unsplash.com/photo-1675426513962-63c6022a8626?w=400&auto=format&fit=crop&q=80' }}
                   style={styles.agentAvatar}
                 />
                 <View>

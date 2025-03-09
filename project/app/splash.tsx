@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { 
@@ -39,20 +40,22 @@ export default function SplashScreen() {
   }));
 
   return (
-    <LinearGradient
-      colors={['#7C3AED', '#4F46E5']}
-      style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}>
-      <Animated.View style={[styles.logoContainer, logoStyle]}>
-        <Image 
-          source={{ uri: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&auto=format&fit=crop&q=80' }}
-          style={styles.logo}
-        />
-        <Text style={styles.title}>zkP-AI</Text>
-        <Text style={styles.subtitle}>Secure AI Agent Builder</Text>
-      </Animated.View>
-    </LinearGradient>
+    <SafeAreaView>
+      <LinearGradient
+        colors={['#7C3AED', '#4F46E5']}
+        style={styles.container}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}>
+        <Animated.View style={[styles.logoContainer, logoStyle]}>
+          <Image 
+            source={{ uri: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&auto=format&fit=crop&q=80' }}
+            style={styles.logo}
+          />
+          <Text style={styles.title}>zkP-AI</Text>
+          <Text style={styles.subtitle}>Secure AI Agent Builder</Text>
+        </Animated.View>
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
